@@ -1,7 +1,7 @@
 import json
 
 # 定义 API 密钥
-api_key = "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"
+api_key = ""
 
 # 创建包含密钥的字典
 data = {
