@@ -1,32 +1,42 @@
-import openai
-
-from tool.get_key import get_key
-
-CANDIDATE_MODEL_TEMPERATURE = 0.7
-sydtem_comtent = "一个具有10年Python开发经验的资深软件工程师"  # 服务器端的描述
-MODEL_type = "gpt-3.5-turbo"  # 根据实际拥有模型类型
-
-
-def get_respon(user_content):
-    openai.api_key = get_key(r"E:\python\pythonProject1\tool\api_key.json")
-    print(openai.api_key)
-    respon = openai.ChatCompletion.create(
-        model=MODEL_type,
-        messages=[
-            {"role": "system", "content": sydtem_comtent},
-            {"role": "user", "content": user_content}
-        ],
-        temperature=CANDIDATE_MODEL_TEMPERATURE
-
-    )
-    pass
+from Class_chatGPT.Chat_gpt import Chat_gpt
 
 
 def main():
-    test_case = "用python实现：提示手动输入3个不同的3位数区间，输入结束后计算这3个区间的交集，并输出结果区间"
-    get_respon(test_case)
-    #user_content = input("请输入你的代码需求：")
-    pass
+    user = input("请输入用户名称: ")
+    chat = Chat_gpt(user)
+
+    while 1:
+        # 限制对话次数
+        if len(chat.conversation) >= 11:
+            print("******************************")
+            print("*********强制重置对话**********")
+            print("******************************")
+            # 写入之前信息
+            chat.writeTojson()
+            user = input("请输入用户名称: ")
+            chat = Chat_gpt(user)
+
+        question = input(f"【{chat.user}】")
+        question = question.strip()
+        if question == "0":  # 按下空格，即输入孔字符即可退出
+            print("*********退出程序**********")
+            chat.writeTojson()  # 保存对话
+            break
+        if question == "1":  # 表示结束当前对话
+            print("**************************")
+            print("*********重置对话**********")
+            print("**************************")
+            # 将信息写入信息
+            chat.writeTojson()
+            user = input("请输入用户名称: ")
+            chat = Chat_gpt(user)  # 生成新的实例
+            continue
+
+        # 提问-回答-记录
+        chat.conversation.append({"role": "user", "content": question})
+        answer = chat.get_chat_respon()
+        print(f"【ChatGPT】{answer}")
+        chat.conversation.append({"role": "assistant", "content": answer})
 
 
 # 按间距中的绿色按钮以运行脚本。
